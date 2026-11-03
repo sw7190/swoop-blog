@@ -35,7 +35,7 @@ tags: [태그1, 태그2]
 ## 바꿔야 할 곳
 
 - 블로그 이름: `src/lib/site.ts`
-- 예시 글: `content/posts`
+- 글: `content/posts`
 
 ## 배포 주소
 
