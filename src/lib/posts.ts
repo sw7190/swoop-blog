@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
+import { cacheLife } from "next/cache";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
@@ -44,6 +45,10 @@ function parsePost(file: string, raw: string): Post {
 
 async function getAllPosts(): Promise<Post[]> {
   "use cache";
+  // 개발 중에는 캐시를 1초만 유지해서, 글을 고치고 새로고침하면 바로 보이게 합니다.
+  if (process.env.NODE_ENV === "development") {
+    cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  }
   const files = (await fs.readdir(POSTS_DIR)).filter((f) => f.endsWith(".md"));
   const posts = await Promise.all(
     files.map(async (file) =>
