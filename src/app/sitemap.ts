@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, tags] = await Promise.all([getPosts(), getTags()]);
-  const paths = ["/", "/tags", "/about", ...tags.map(({ tag }) => tagHref(tag))];
+  const paths = ["/", "/tags", ...tags.map(({ tag }) => tagHref(tag))];
 
   return [
     ...paths.map((path) => ({ url: new URL(path, site.url).toString() })),

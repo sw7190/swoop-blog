@@ -1,4 +1,4 @@
-# 내 블로그
+# swoop
 
 Next.js, React, shadcn/ui로 만든 개인 블로그입니다. 글은 Markdown 파일로 관리합니다.
 
@@ -34,8 +34,7 @@ tags: [태그1, 태그2]
 
 ## 바꿔야 할 곳
 
-- 블로그 이름과 설명: `src/lib/site.ts`
-- 소개 페이지: `src/app/about/page.tsx`
+- 블로그 이름: `src/lib/site.ts`
 - 예시 글: `content/posts`
 
 ## 배포 주소

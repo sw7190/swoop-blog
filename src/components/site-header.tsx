@@ -5,7 +5,6 @@ import { site } from "@/lib/site";
 const navItems = [
   { href: "/", label: "글" },
   { href: "/tags", label: "태그" },
-  { href: "/about", label: "소개" },
 ];
 
 export function SiteHeader() {
