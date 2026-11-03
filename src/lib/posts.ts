@@ -15,17 +15,36 @@ export type PostMeta = {
 
 export type Post = PostMeta & { content: string };
 
-function parseDate(value: unknown, file: string): string {
-  // YAML은 따옴표 없는 날짜를 Date로, 따옴표가 있으면 문자열로 읽습니다.
-  const date = value instanceof Date ? value.toISOString().slice(0, 10) : value;
-  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    throw new Error(`${file}: date는 YYYY-MM-DD 형식이어야 합니다.`);
+// 글 파일 이름은 "날짜-번호.md"입니다. 예: 2026-11-03-1.md → /posts/2026-11-03-1
+const FILE_NAME = /^(\d{4}-\d{2}-\d{2})-([1-9]\d*)\.md$/;
+
+function parseFileName(file: string): { date: string; index: number } {
+  const match = FILE_NAME.exec(file);
+  const date = match?.[1];
+  if (!match || !date || Number.isNaN(Date.parse(date))) {
+    throw new Error(
+      `${file}: 파일 이름은 "YYYY-MM-DD-번호.md" 형식이어야 합니다. 예: 2026-11-03-1.md`,
+    );
   }
-  return date;
+  return { date, index: Number(match[2]) };
+}
+
+// front matter에 date를 적었다면 파일 이름의 날짜와 같아야 합니다.
+function checkDate(value: unknown, date: string, file: string) {
+  if (value === undefined) return;
+  // YAML은 따옴표 없는 날짜를 Date로, 따옴표가 있으면 문자열로 읽습니다.
+  const written = value instanceof Date ? value.toISOString().slice(0, 10) : value;
+  if (written !== date) {
+    throw new Error(
+      `${file}: date(${String(written)})가 파일 이름의 날짜(${date})와 다릅니다. date 줄은 지워도 됩니다.`,
+    );
+  }
 }
 
 function parsePost(file: string, raw: string): Post {
+  const { date } = parseFileName(file);
   const { data, content } = matter(raw);
+  checkDate(data.date, date, file);
   if (typeof data.title !== "string" || !data.title.trim()) {
     throw new Error(`${file}: title이 필요합니다.`);
   }
@@ -33,10 +52,9 @@ function parsePost(file: string, raw: string): Post {
     throw new Error(`${file}: tags는 [태그1, 태그2] 형식이어야 합니다.`);
   }
   return {
-    // macOS는 한글 파일명을 자모 분리(NFD) 형태로 줄 수 있습니다.
-    slug: file.replace(/\.md$/, "").normalize("NFC"),
+    slug: file.replace(/\.md$/, ""),
     title: data.title,
-    date: parseDate(data.date, file),
+    date,
     summary: typeof data.summary === "string" ? data.summary : "",
     tags: (data.tags ?? []).map((tag: unknown) => String(tag).normalize("NFC")),
     content,
@@ -55,7 +73,11 @@ async function getAllPosts(): Promise<Post[]> {
       parsePost(file, await fs.readFile(path.join(POSTS_DIR, file), "utf8")),
     ),
   );
-  return posts.sort((a, b) => b.date.localeCompare(a.date));
+  // 최신 날짜가 먼저, 같은 날짜면 번호가 큰(나중에 쓴) 글이 먼저 옵니다.
+  const index = (post: Post) => parseFileName(`${post.slug}.md`).index;
+  return posts.sort(
+    (a, b) => b.date.localeCompare(a.date) || index(b) - index(a),
+  );
 }
 
 export async function getPosts(): Promise<PostMeta[]> {

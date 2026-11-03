@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/**": ["./content/posts/**"],
   },
+  // 글 주소를 "날짜-번호"로 바꾸기 전에 공개된 주소를 새 주소로 보냅니다.
+  async redirects() {
+    return [
+      {
+        source: "/posts/new-post",
+        destination: "/posts/2026-11-03-1",
+        permanent: true,
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {
