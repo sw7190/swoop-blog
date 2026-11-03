@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
@@ -24,6 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -41,6 +44,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </p>
         </footer>
       </body>
+      {/* 측정 ID(NEXT_PUBLIC_GA_ID)가 있을 때만 Google Analytics를 켭니다. */}
+      {gaId && <GoogleAnalytics gaId={gaId} />}
     </html>
   );
 }
