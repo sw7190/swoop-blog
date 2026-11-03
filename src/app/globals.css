@@ -129,3 +129,35 @@
     @apply font-sans;
   }
 }
+/* 코드 블록: rehype-pretty-code(Shiki)가 칠한 색을 라이트/다크에 맞춰 씁니다. */
+.code-block pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 1rem 0;
+  background-color: var(--card);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.code-block pre code {
+  display: grid;
+  min-width: 100%;
+}
+
+.code-block [data-line] {
+  padding: 0 1rem;
+}
+
+.code-block [data-highlighted-line] {
+  background-color: color-mix(in oklch, var(--primary) 8%, transparent);
+  box-shadow: inset 2px 0 0 var(--primary);
+}
+
+.code-block pre span {
+  color: var(--shiki-light);
+}
+
+.dark .code-block pre span {
+  color: var(--shiki-dark);
+}
